@@ -96,7 +96,7 @@ async def check_new_media(usernames, base_dir, data, json_path, debug):
 
 def main():
     # Print centered title
-    print(Center.XCenter(Colorate.Vertical(Colors.cyan_to_white, f"*** {TOOL_TITLE} ***")))
+    print(Center.XCenter(Colorate.Vertical(Colors.green_to_white, f"*** {TOOL_TITLE} ***")))
     parser = argparse.ArgumentParser(prog=TOOL_TITLE.lower(), description="Download Snapchat stories")
     parser.add_argument(
         "-u", "--user",
