@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+snapify_data.json
+snap_media/
+zips/
