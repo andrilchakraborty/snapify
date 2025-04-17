@@ -8,16 +8,10 @@ import json
 import sys
 from datetime import datetime
 from tabulate import tabulate
-from pystyle import Colorate, Colors, Center, Write
+from pystyle import Center, Colors, Colorate, Write
 
-ASCII_BANNER = r"""
-███████╗███╗   ██╗ █████╗ ██████╗ ██╗███████╗██╗   ██╗
-██╔════╝████╗  ██║██╔══██╗██╔══██╗██║██╔════╝╚██╗ ██╔╝
-███████╗██╔██╗ ██║███████║██████╔╝██║█████╗   ╚████╔╝ 
-╚════██║██║╚██╗██║██╔══██║██╔═══╝ ██║██╔══╝    ╚██╔╝  
-███████║██║ ╚████║██║  ██║██║     ██║██║        ██║   
-╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝        ╚═╝   
-"""
+# Title for the tool
+TOOL_TITLE = "Snapify"
 
 
 def load_autopost_data(json_path):
@@ -30,6 +24,7 @@ def load_autopost_data(json_path):
 def save_autopost_data(data, json_path):
     with open(json_path, 'w') as f:
         json.dump(data, f, indent=2)
+
 
 async def get_json(session, username):
     url = f"https://story.snapchat.com/@{username}"
@@ -46,6 +41,7 @@ async def get_json(session, username):
         except json.JSONDecodeError:
             return None
 
+
 async def download_media(session, url, save_dir, debug=False):
     os.makedirs(save_dir, exist_ok=True)
     fname = re.sub(r'[<>:"/\\|?*]', '', url.split('/')[-1])
@@ -61,6 +57,7 @@ async def download_media(session, url, save_dir, debug=False):
                 Write.Print(f"[DEBUG] Downloaded: {path}\n", Colors.green)
             return path
     return None
+
 
 async def check_new_media(usernames, base_dir, data, json_path, debug):
     async with aiohttp.ClientSession() as session:
@@ -85,20 +82,22 @@ async def check_new_media(usernames, base_dir, data, json_path, debug):
             color = Colors.green if downloaded else Colors.yellow
             Write.Print(f"{user}: {status_msg} media downloaded.\n", color)
             table_rows.append([user, len(new), datetime.now().strftime('%Y-%m-%d %H:%M:%S')])
+
         save_autopost_data(data, json_path)
+
         if table_rows:
-            table = tabulate(
-                table_rows,
-                headers=["User", "New Items", "Checked At"],
-                tablefmt="rounded_grid",
-                stralign="center"
-            )
-            print(Center.XCenter(Colorate.Vertical(Colors.green_to_white, table)))
+            # Build and display table with title
+            title = Center.XCenter(Colorate.Horizontal(Colors.cyan_to_blue, f" {TOOL_TITLE} " ))
+            headers = [f"{TOOL_TITLE} User", "New Items", "Checked At"]
+            table = tabulate(table_rows, headers=headers, tablefmt="fancy_grid", stralign="center")
+            centered = Center.XCenter(Colorate.Vertical(Colors.green_to_white, table))
+            print("\n" + title + "\n" + centered + "\n")
 
 
 def main():
-    print(Center.XCenter(Colorate.Horizontal(Colors.green_to_yellow, ASCII_BANNER)))
-    parser = argparse.ArgumentParser(prog="snapify", description="Download Snapchat stories")
+    # Print centered title
+    print(Center.XCenter(Colorate.Vertical(Colors.cyan_to_white, f"*** {TOOL_TITLE} ***")))
+    parser = argparse.ArgumentParser(prog=TOOL_TITLE.lower(), description="Download Snapchat stories")
     parser.add_argument(
         "-u", "--user",
         type=str,
@@ -137,6 +136,7 @@ def main():
             sys.exit(0)
     else:
         asyncio.run(check_new_media(usernames, args.directory, data, args.jsonfile, args.debug))
+
 
 if __name__ == '__main__':
     main()
